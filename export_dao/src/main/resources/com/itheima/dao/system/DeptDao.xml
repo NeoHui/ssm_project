@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.system.DeptDao">
+    <resultMap id="BaseResultMap" type="dept">
+        <id property="id" column="dept_id"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="state" column="state"/>
+        <result property="companyId" column="company_id"/>
+        <result property="companyName" column="company_name"/>
+        <!--<result property="parentId" column="parent_id"/>-->
+        <!-- 多对一 -->
+        <association property="parent" column="parent_id" select="findById" javaType="dept"/>
+    </resultMap>
+
+    <!--进入部门显示页面-->
+    <select id="findAll" parameterType="String" resultMap="BaseResultMap">
+    select * from pe_dept where company_id=#{companyId} and is_deleted=0
+    </select>
+    <select id="findById" parameterType="string" resultMap="BaseResultMap">
+        select * from pe_dept where dept_id=#{id}
+    </select>
+
+    <!--新增-->
+    <insert id="save" parameterType="dept">
+        insert into pe_dept
+        (
+        dept_id,
+        dept_name,
+        state,
+        company_id,
+        company_name,
+        parent_id
+        )
+        VALUES (
+            #{id},
+            #{deptName},
+            #{state},
+            #{companyId},
+            #{companyName},
+            #{parent.id}
+        )
+    </insert>
+
+    <!--删除-->
+    <delete id="deleteById" parameterType="String">
+        update pe_dept set is_deleted=1 where dept_id = #{id}
+    </delete>
+
+    <!--修改部门信息-->
+    <update id="update" parameterType="dept">
+        update pe_dept
+        <set>
+            <if test="deptName!=null and deptName!=''">
+                dept_name=#{deptName},
+            </if>
+            <if test="state!=null">
+                state=#{state},
+            </if>
+            <if test="companyId!=null and companyId!=''">
+                company_id=#{companyId},
+            </if>
+            <if test="companyName!=null and companyName!=''">
+                company_name=#{companyName},
+            </if>
+            <if test="parent!=null">
+                parent_id=#{parent.id},
+            </if>
+        </set>
+        where
+        dept_id=#{id}
+    </update>
+</mapper>
